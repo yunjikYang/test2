@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<items>
+	<item value="99" text="전체"/>
+	<item value="01" text="선사시대 "/>
+	<item value="03" text="석기시대 "/>
+	<item value="05" text="청동기시대 "/>
+	<item value="07" text="철기시대 "/>
+	<item value="09" text="삼한시대 "/>
+	<item value="10" text="삼국시대 "/>
+	<item value="11" text="  -고구려"/>
+	<item value="12" text="  -백제"/>
+	<item value="13" text="  -신라 "/>
+	<!--item  value="14" text="-가야"/-->
+	<item value="15" text="발해 "/>
+	<item value="20" text="통일신라"/>
+	<item value="30" text="고려시대 "/>
+	<item value="40" text="조선시대 "/>
+	<item value="45" text="대한제국시대"/>
+	<item value="50" text="일제강점기 "/>
+	<item value="60" text="시대미상"/>
+</items>
+
+

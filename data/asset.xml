@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<items>
+	<item value="" text="전체" />
+	<item value="11" text="국보" />
+	<item value="12" text="보물" />
+	<item value="13" text="사적" />
+	<item value="15" text="명승" />
+	<item value="16" text="천연기념물" />
+	<item value="17" text="중요무형문화재" />
+	<item value="18" text="중요민속문화재" />
+	<item value="21" text="시도유형문화재" />
+	<item value="22" text="시도무형문화재" />
+	<item value="23" text="시도기념물" />
+	<item value="24" text="시도민속문화재" />
+	<item value="31" text="문화재자료" />
+	<item value="79" text="등록문화재" />
+	<item value="80" text="이북5도 무형문화재" />
+</items>
+
+

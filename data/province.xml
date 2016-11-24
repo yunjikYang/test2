@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<items>
+	<item value="" text="전체"/>
+	<item value="11" text="서울"/>
+	<item value="21" text="부산"/>
+	<item value="22" text="대구"/>
+	<item value="23" text="인천"/>
+	<item value="24" text="광주"/>
+	<item value="25" text="대전"/>
+	<item value="26" text="울산"/>
+	<item value="45" text="세종"/>
+	<item value="31" text="경기"/>
+	<item value="32" text="강원"/>
+	<item value="33" text="충북"/>
+	<item value="34" text="충남"/>
+	<item value="35" text="전북"/>
+	<item value="36" text="전남"/>
+	<item value="37" text="경북"/>
+	<item value="38" text="경남"/>
+	<item value="50" text="제주"/>
+	<item value="ZZ" text="전국일원"/>
+</items>
+
+

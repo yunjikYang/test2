@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MOML version="1.1.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.applusform.com/xsd/moml_ui_1.1.8.xsd">
+	<THEMES>
+		<THEME element="BUTTON" img="dodgerBlue" pressedImg="green" margin="1" textColor="white" padding="10"/>
+	</THEMES>
+	
+	<UILAYOUT portrait="320,480" landscape="320,480">
+		<STYLEBUTTON layout="0,0,320,40" text="한국문화재" fontSize="20" textAlign="center" textColor="#ffffff" overlay1="gradation:tb|#306080|#80a0ff"/>
+		
+		<WINDOW layout="0,40,320,480" img="white" align="linear:vertical" padding="10,10,10,0" scroll="vertical">
+			<WINDOW layout="300,60" align="relative">
+				<LABEL layout="0,0,40,30" text="종류 :" textAlign="center"/>
+				<SPINNER id="asset" layout="40,0,180,30" dataSource="/data/asset.xml" dataList="//item" textPath="@text" valuePath="@value" />
+				<LABEL layout="0,30,40,30" text="지역 :" textAlign="center"/>
+				<SPINNER id="province" layout="40,30,180,30" dataSource="/data/province.xml" dataList="//item" textPath="@text" valuePath="@value" />
+				<BUTTON layout="230,10,60,40" text="검색" onClick="function.search(1)"/>
+			</WINDOW>
+			
+			<LIST2 id="list" layout="300,320" dataList="//item" img="mintCream">
+				<LISTLAYOUT>
+					<BUTTON layout="0,0,300,60" onClick="function.showDetail" pressedImg="deepSkyBlue" img="transparent">
+						<WINDOW layout="5,5,50,50" img="{xpath.evaluate('.//listImageUrl')}" />
+						<LABEL layout="60,10,240,20" text="{xpath.evaluate('.//crltsNm')}" />
+						<LABEL layout="70,35,45,15" text="{xpath.evaluate('.//ctrdNm')}" fontSize="12" textAlign="right"/>
+						<LABEL layout="120,35,180,15" text="{xpath.evaluate('.//itemNm')} {xpath.evaluate('.//crltsNoNm')}호" fontSize="12"/>
+					</BUTTON>
+				</LISTLAYOUT>
+			</LIST2>
+			
+			<WINDOW layout="300,30" align="linear:center" >
+				<BUTTON id="prev" layout="60,30" text="이전" onClick="function.search(--userVariable.nowPageNo)"/>
+				<EDIT id="page" layout="60,30" textFormat="number" textAlign="right|center" onReturnKey="function.search(caller.text)" returnKeyType="go"/>
+				<LABEL id="total" layout="60,30" textAlign="left|center" />
+				<BUTTON id="next" layout="60,30" text="다음" onClick="function.search(++userVariable.nowPageNo)"/>
+			</WINDOW>
+			<LABEL layout="300,20" text="자료제공: 문화재청" fontSize="9" textAlign="center|right"/>
+		</WINDOW>
+
+		<POPUP id="detailPopup" layout="0,0,320,480" onBackKey="caller.visible = false" visible="invisible" img="white" showEffect="fade:300" hideEffect="fade:300">
+			<LABEL id="detailNum" layout="3,3,280,10" fontSize="9"/>
+			<LABEL id="detailTitle" layout="0,15,280,30" textAlign="center" fontSize="20"/>
+			<LABEL id="detailTitle2" layout="0,45,280,30" textAlign="hCenter" />
+			<BUTTON layout="290,0,30,30" text="X" onClick="detailPopup.visible = false" />
+			<WINDOW id="detailScroll" layout="10,75,300,400" align="linear:vertical" scroll="vertical">
+				<IMAGE id="detailImage" layout="300,auto" />
+				<LABEL id="detailDesc" layout="300,auto" minFontSize="-1" multiLine="true" />
+				<CONTAINER id="detailImageList" layout="300,200" align="relative"/>
+				<LABEL id="detailLoc" layout="300,20" margin="0,10,0,0" />
+				<WEBVIEW id="map" layout="300,300" controls="none" supportZoom="true"/>
+			</WINDOW>
+		</POPUP>
+		<POPUP id="imagePopup" layout="0,0,320,480" onBackKey="caller.visible = false" visible="invisible" img="white" showEffect="fade:300" hideEffect="fade:300">
+			<LABEL id="imagePopupTitle" layout="5,5,280,30" textAlign="center" fontSize="20"/>
+			<WINDOW layout="0,40,320,430" align="linear:hCenter" scroll="vertical">
+				<IMAGE id="orginalImg" layout="300,auto" />
+			</WINDOW>
+			<BUTTON layout="290,0,30,30" text="X" onClick="imagePopup.visible = false" />
+		</POPUP>
+	</UILAYOUT>
+
+	<FUNCTION id="soapRequest(requestFile, itemCd, ctrdCd, crltsNo, nowPageNo, endFunction)">
+		<CMD cmd="serviceKey = 'XAQRkAc4BBj5RWTWfdEX5Oc5ry0o4j74tmxD5R4HhJoegNLrNTlRZl6%2BCW%2BX%2BC28DAwBYq73UvcNcdB6n591bg%3D%3D'"/>
+		<CMD cmd="serviceKey = string.decode(serviceKey, 'percent')"/>
+		<CMD cmd="requestXml = file.read(requestFile)"/>
+		<CMD cmd="requestXml = string.replace(requestXml, '$ServiceKey$', serviceKey)"/>
+		<CMD cmd="requestXml = string.replace(requestXml, '$itemCd$', itemCd)"/>
+		<CMD cmd="requestXml = string.replace(requestXml, '$ctrdCd$', ctrdCd)"/>
+		<CMD cmd="requestXml = string.replace(requestXml, '$crltsNo$', crltsNo)"/>
+		<CMD cmd="requestXml = string.replace(requestXml, '$nowPageNo$', nowPageNo)"/>
+		<CMD cmd="reqId = http.createRequestId()" />
+		<CMD cmd="http.setContent(reqId, requestXml)" />
+		<CMD cmd="http.addHeaderField(reqId, 'SOAPAction', '')" />
+		<CMD cmd="http.setContentType(reqId, 'text/xml; charset=utf-8')" />
+		<CMD cmd="http.post(reqId, 'http://openapi.cha.go.kr:80/openapi/soap/crlts/KndCrltsService', '', endFunction)" />
+	</FUNCTION>
+
+	<!-- 문화재 검색 리스트 -->
+	<FUNCTION id="search(nowPageNo)">
+		<CMD cmd="userVariable.nowPageNo = nowPageNo"/>
+		<CMD cmd="function.soapRequest('/soap/getKndCrltsList.xml', asset.value, province.value, '', nowPageNo, 'function.onGetKndCrltsList')"/>
+	</FUNCTION>
+	
+	<FUNCTION id="onGetKndCrltsList(xml)" >
+		<CMD cmd="list.dataSource = xml" />
+		<CMD cmd="nowPageNo = xpath.evaluateEx(xml, '//nowPageNo')" />
+		<CMD cmd="pageMg = xpath.evaluateEx(xml, '//pageMg')" />
+		<CMD cmd="totCnt = xpath.evaluateEx(xml, '//totCnt')" />
+		<CMD cmd="page.text = nowPageNo" />
+		<CMD cmd="total.text = '/' + math.ceil(totCnt / pageMg)" />
+	</FUNCTION>
+
+	<!-- 문화재 상세 정보-->
+	<FUNCTION id="showDetail">
+		<CMD cmd="detailNum.text = xpath.evaluate('.//itemNm') + ' ' + xpath.evaluate('.//crltsNoNm') + '호'"/>
+		<CMD cmd="detailTitle.text = xpath.evaluate('.//crltsNm')"/>
+		<CMD cmd="imagePopupTitle.text = xpath.evaluate('.//crltsNm')"/>
+		<CMD cmd="detailTitle2.text = xpath.evaluate('.//crltsNmChcrt')"/>
+		<CMD cmd="function.soapRequest('/soap/getKndCrltsDtls.xml', xpath.evaluate('.//itemCd'), xpath.evaluate('.//ctrdCd'), xpath.evaluate('.//crltsNo'), 1, 'function.onGetKndCrltsDtls')"/>
+	</FUNCTION>
+
+	<FUNCTION id="onGetKndCrltsDtls(xml)" >
+		<CMD cmd="crltsDc = xpath.evaluateEx(xml, '//crltsDc')"/>
+		<CMD cmd="YCnts = xpath.evaluateEx(xml, '//YCnts')" />
+		<CMD cmd="XCnts = xpath.evaluateEx(xml, '//XCnts')" />
+		<CMD cmd="detailImage.defaultImg = xpath.evaluateEx(xml, '//imageUrl')"/>
+		<CMD cmd="detailDesc.text = ' ' + string.replace(crltsDc, '다.', '다.\n')"/>
+		<CMD cmd="detailLoc.text = '위치 : ' + xpath.evaluateEx(xml, '//ctrdNm') + ' ' + xpath.evaluateEx(xml, '//signguNm')"/>
+		<CMD condition="YCnts and XCnts">
+			<CMD cmd="map.height = 300" />
+			<CMD cmd="html = file.read('map.htm')" />
+			<CMD cmd="html = string.replace(html, '$LATITUDE$', YCnts)" />
+			<CMD cmd="html = string.replace(html, '$LONGITUDE$', XCnts)" />
+			<CMD cmd="map.src = html" />
+			<ELSECMD cmd="map.height = 0" />
+		</CMD>
+		<CMD cmd="detailScroll.scrollY = 0" delay="100"/>
+		<CMD cmd="detailPopup.visible = true" delay="300"/>
+		<CMD cmd="itemCd = xpath.evaluateEx(xml, '//itemCd')" />
+		<CMD cmd="ctrdCd = xpath.evaluateEx(xml, '//ctrdCd')" />
+		<CMD cmd="crltsNo = xpath.evaluateEx(xml, '//crltsNo')" />
+		<CMD cmd="function.soapRequest('/soap/getKndCrltsImage.xml', itemCd, ctrdCd, crltsNo, 1, 'function.onGetKndCrltsImage')"/>
+	</FUNCTION>
+	
+	<!-- 문화재 상세 이미지 목록-->
+	<FUNCTION id="onGetKndCrltsImage(xml)" >
+		<CMD cmd="count = xpath.evaluateEx(xml, '//totCnt')" />
+		<CMD cmd="height = 60 * math.ceil(count / 5)" />
+		<CMD cmd="xsl = file.read('imageListToMoml.xsl')" />
+		<CMD cmd="xslt.setParameter('height', height)" />
+		<CMD cmd="moml = xslt.transform(xml, xsl)" />
+		<CMD cmd="detailImageList.height=60 * math.ceil(count / 5)" />
+		<CMD cmd="detailImageList.src = moml" delay="300"/>
+	</FUNCTION>
+
+	<!-- 문화재 상세 이미지 크게 보기-->
+	<FUNCTION id="popupImage(url)" >
+		<CMD cmd="orginalImg.img = url" />
+		<CMD cmd="imagePopup.visible = true" delay="200"/>
+	</FUNCTION>
+</MOML>

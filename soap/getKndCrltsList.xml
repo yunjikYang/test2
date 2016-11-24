@@ -1,0 +1,17 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:head="http://apache.org/headers" xmlns:ser="http://service.kndcrlts.crlts.cha/">
+	<soapenv:Header>
+		<head:ComMsgHeader>
+			<ServiceKey>$ServiceKey$</ServiceKey>
+		</head:ComMsgHeader>
+	</soapenv:Header>
+	<soapenv:Body>
+		<ser:getKndCrltsList>
+			<arg0>
+				<nowPageNo>$nowPageNo$</nowPageNo>
+				<pageMg>20</pageMg>
+				<itemCd>$itemCd$</itemCd>
+				<ctrdCd>$ctrdCd$</ctrdCd>
+			</arg0>
+		</ser:getKndCrltsList>
+	</soapenv:Body>
+</soapenv:Envelope>
